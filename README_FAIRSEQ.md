@@ -1,9 +1,9 @@
 # Introduction <img src="fairseq_logo.png" width="50"> 
 
-Fairseq(-py) is a sequence modeling toolkit that allows researchers and
-developers to train custom models for translation, summarization, language
-modeling and other text generation tasks. It provides reference implementations
-of various sequence-to-sequence models, including:
+Fairseq（-py）是一个序列建模工具包，
+研究人员和开发人员可以使用它们来训练定制模型，
+以进行翻译，摘要，语言建模和其他文本生成任务。 
+它提供了各种序列到序列模型的参考实现，包括：
 - **Convolutional Neural Networks (CNN)**
   - [Dauphin et al. (2017): Language Modeling with Gated Convolutional Networks](examples/conv_lm/README.md)
   - [Gehring et al. (2017): Convolutional Sequence to Sequence Learning](examples/conv_seq2seq/README.md)
@@ -20,11 +20,21 @@ of various sequence-to-sequence models, including:
   - [Edunov et al. (2018): Understanding Back-Translation at Scale](examples/backtranslation/README.md)
   - **_New_** [Shen et al. (2019) Mixture Models for Diverse Machine Translation: Tricks of the Trade](examples/translation_moe/README.md)
 
+Fairseq功能：
+- 一台机器或多台机器上的多GPU（分布式）训练
+- 通过实现多种搜索算法，在CPU和GPU上快速生成：
+   -beam search
+   -Diverse beam search（[Vijayakumar et al。，2016]（https://arxiv.org/abs/1610.02424））
+   -采样（无限制和前k个）
+-通过延迟更新，即使在单个GPU上，也可以进行大型的小批量培训
+-快速半精度浮点（FP16）培训
+-可扩展：轻松注册新模型，标准，任务，优化器和学习率调度器
+
 Fairseq features:
 - multi-GPU (distributed) training on one machine or across multiple machines
 - fast generation on both CPU and GPU with multiple search algorithms implemented:
   - beam search
-  - Diverse Beam Search ([Vijayakumar et al., 2016](https://arxiv.org/abs/1610.02424))
+  -  Beam Search ([Vijayakumar et al., 2016](https://arxiv.org/abs/1610.02424))
   - sampling (unconstrained and top-k)
 - large mini-batch training even on a single GPU via delayed updates
 - fast half-precision floating point (FP16) training

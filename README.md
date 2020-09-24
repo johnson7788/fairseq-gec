@@ -11,7 +11,7 @@ Comments: Accepted by NAACL 2019 (oral)
 - PyTorch version >= 1.0.0
 - Python version >= 3.6
 
-## Downloads
+## 下载数据
 - Download CoNLL-2014 evaluation scripts
 
 ```
@@ -19,7 +19,7 @@ cd gec_scripts/
 sh download.sh
 ```
 
-- Download **pre-processed data** & **pre-trained models**
+- 下载预训练模型 **pre-processed data** & **pre-trained models**
   
   pre-trained model: (Google Drive/Baidu Pan) 
     - url1: https://drive.google.com/file/d/1zewifHUUwvqc2F-MfDRsZFio6PlSzx2c/view?usp=sharing
@@ -28,16 +28,14 @@ sh download.sh
   pre-processed data: (Google Drive)(train/valid/test)
     - url: https://drive.google.com/open?id=17s-TZiM6ilQ-SHklxTUun2Jdgg8B9zS3  
 
-## Train with the pre-trained model
+## 用pre-trained model训练
 ```
 cd fairseq-gec
 pip install --editable
 sh train.sh \${device_id} \${experiment_name}
 ```
 
-## Train without the pre-trained model
-Modify train.sh to train without the pre-trained model
-
+## 不使用pre-trained model训练, 修改train.sh
 - delete parameter "--pretrained-model" 
 - change the value of "--max-epoch" to 15 (more epochs are needed without pre-trained parameters) 
 
@@ -46,8 +44,9 @@ Modify train.sh to train without the pre-trained model
 sh g.sh \${device_id} \${experiment_name}
 ```
 
-## Get pre-trained models from scratch
-We have public our pre-trained models as mentioned in the downloads part. We list the steps here, in case someone want to get the pre-trained models from scratch. 
+## Get pre-trained models from scratch, 从头开始制作预训练模型
+如下载部分所述，我们已经公开了我们的预训练模型。
+如果有人想从头开始获得预训练的模型，我们在这里列出了步骤。
 
 ```
 1. # prepare target sentences using one billion benchmark dataset
