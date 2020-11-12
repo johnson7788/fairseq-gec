@@ -30,16 +30,6 @@ Fairseq功能：
 -快速半精度浮点（FP16）培训
 -可扩展：轻松注册新模型，标准，任务，优化器和学习率调度器
 
-Fairseq features:
-- multi-GPU (distributed) training on one machine or across multiple machines
-- fast generation on both CPU and GPU with multiple search algorithms implemented:
-  - beam search
-  -  Beam Search ([Vijayakumar et al., 2016](https://arxiv.org/abs/1610.02424))
-  - sampling (unconstrained and top-k)
-- large mini-batch training even on a single GPU via delayed updates
-- fast half-precision floating point (FP16) training
-- extensible: easily register new models, criterions, tasks, optimizers and learning rate schedulers
-
 We also provide [pre-trained models](#pre-trained-models-and-examples) for several benchmark
 translation and language modeling datasets.
 
@@ -50,20 +40,20 @@ translation and language modeling datasets.
 * For training new models, you'll also need an NVIDIA GPU and [NCCL](https://github.com/NVIDIA/nccl)
 * Python version 3.6
 
-Currently fairseq requires PyTorch version >= 1.0.0.
+目前fairseq需要PyTorch版本  >= 1.0.0.
 Please follow the instructions here: https://github.com/pytorch/pytorch#installation.
 
-If you use Docker make sure to increase the shared memory size either with
+如果您使用Docker，请确保通过以下任一方法增加共享内存大小
 `--ipc=host` or `--shm-size` as command line options to `nvidia-docker run`.
 
-After PyTorch is installed, you can install fairseq with `pip`:
+安装PyTorch之后，您可以使用以下命令安装fairseq  `pip`:
 ```
 pip install fairseq
 ```
 
 **Installing from source**
 
-To install fairseq from source and develop locally:
+从源代码安装fairseq并在本地开发:
 ```
 git clone https://github.com/pytorch/fairseq
 cd fairseq
@@ -72,19 +62,16 @@ pip install --editable .
 
 # Getting Started
 
-The [full documentation](https://fairseq.readthedocs.io/) contains instructions
-for getting started, training new models and extending fairseq with new model
-types and tasks.
+The [full documentation](https://fairseq.readthedocs.io/) 包含有关入门，训练新模型以及使用新模型类型和任务扩展fairseq的说明。
 
 # Pre-trained models and examples
 
-We provide pre-trained models and pre-processed, binarized test sets for several tasks listed below,
-as well as example training and evaluation commands.
+我们为以下列出的几个任务提供了经过预训练的模型和经过预处理的二分类测试集，以及样本性的训练和评估命令。
 
 - [Translation](examples/translation/README.md): convolutional and transformer models are available
 - [Language Modeling](examples/language_model/README.md): convolutional models are available
 
-We also have more detailed READMEs to reproduce results from specific papers:
+我们还提供了更详细的 READMEs, 以重现特定论文的结果：
 - [Shen et al. (2019) Mixture Models for Diverse Machine Translation: Tricks of the Trade](examples/translation_moe/README.md)
 - [Wu et al. (2019): Pay Less Attention with Lightweight and Dynamic Convolutions](examples/pay_less_attention_paper/README.md)
 - [Edunov et al. (2018): Understanding Back-Translation at Scale](examples/backtranslation/README.md)
