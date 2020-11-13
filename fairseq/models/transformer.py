@@ -109,18 +109,18 @@ class TransformerModel(FairseqModel):
 
     @classmethod
     def build_model(cls, args, task):
-        """Build a new model instance."""
+        """初始化一个模型实例"""
 
         # make sure all arguments are present in older models
         base_architecture(args)
-
+        #最大序列长度
         if not hasattr(args, 'max_source_positions'):
             args.max_source_positions = 1024
         if not hasattr(args, 'max_target_positions'):
             args.max_target_positions = 1024
 
         src_dict, tgt_dict = task.source_dictionary, task.target_dictionary
-
+        #做embedding
         def build_embedding(dictionary, embed_dim, path=None):
             num_embeddings = len(dictionary)
             padding_idx = dictionary.pad()
@@ -130,7 +130,7 @@ class TransformerModel(FairseqModel):
                 embed_dict = utils.parse_embedding(path)
                 utils.load_embedding(embed_dict, dictionary, emb)
             return emb
-
+        #共享embedding, 源序列和目标序列共享embedding
         if args.share_all_embeddings:
             if src_dict != tgt_dict:
                 raise ValueError('--share-all-embeddings requires a joined dictionary')
@@ -152,7 +152,7 @@ class TransformerModel(FairseqModel):
             decoder_embed_tokens = build_embedding(
                 tgt_dict, args.decoder_embed_dim, args.decoder_embed_path
             )
-
+        # encoder和decoder结构加入到模型中
         encoder = TransformerEncoder(args, src_dict, encoder_embed_tokens)
         decoder = TransformerDecoder(args, tgt_dict, decoder_embed_tokens)
         return TransformerModel(encoder, decoder)
@@ -436,25 +436,27 @@ class TransformerDecoder(FairseqIncrementalDecoder):
         super().__init__(dictionary)
         self.dropout = args.dropout
         self.share_input_output_embed = args.share_decoder_input_output_embed
-
+        # eg: 512
         input_embed_dim = embed_tokens.embedding_dim
         embed_dim = args.decoder_embed_dim
         output_embed_dim = args.decoder_output_dim
-
+        # padding的id
         padding_idx = embed_tokens.padding_idx
+        # max_target_positions eg：1024
         self.max_target_positions = args.max_target_positions
-
+        # 实例化的embedding
         self.embed_tokens = embed_tokens
+        # 求根号
         self.embed_scale = math.sqrt(embed_dim)  # todo: try with input_embed_dim
-
+        # 如果输入embedding和默认embedding不一样大，那么投影转换下
         self.project_in_dim = Linear(input_embed_dim, embed_dim, bias=False) if embed_dim != input_embed_dim else None
-
+        #位置embedding
         self.embed_positions = PositionalEmbedding(
             args.max_target_positions, embed_dim, padding_idx,
             left_pad=left_pad,
             learned=args.decoder_learned_pos,
         ) if not args.no_token_positional_embeddings else None
-
+        # 自定义一个layers，然后加入TransformerDecoder结构, 默认是decoder_layers 是6层
         self.layers = nn.ModuleList([])
         self.layers.extend([
             TransformerDecoderLayer(args, no_encoder_attn)

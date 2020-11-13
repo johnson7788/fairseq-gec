@@ -8,6 +8,9 @@
 .idea
 __pycache__
 venv
+out/data
+data
+out
 
 #model
 formbot/models/

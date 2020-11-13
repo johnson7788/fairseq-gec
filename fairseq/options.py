@@ -176,40 +176,40 @@ def add_preprocess_args(parser):
     group.add_argument("-t", "--target-lang", default=None, metavar="TARGET",
                        help="target language")
     group.add_argument("--trainpref", metavar="FP", default=None,
-                       help="train file prefix")
+                       help="训练文件的前缀")
     group.add_argument("--validpref", metavar="FP", default=None,
-                       help="comma separated, valid file prefixes")
+                       help="逗号分隔，验证文件的前缀")
     group.add_argument("--testpref", metavar="FP", default=None,
-                       help="comma separated, test file prefixes")
+                       help="逗号分隔，测试文件的前缀")
     group.add_argument("--destdir", metavar="DIR", default="data-bin",
-                       help="destination dir")
+                       help="目标文件夹")
     group.add_argument("--thresholdtgt", metavar="N", default=0, type=int,
-                       help="map words appearing less than threshold times to unknown")
+                       help="将出现少于阈值次数的单词映射为unknow")
     group.add_argument("--thresholdsrc", metavar="N", default=0, type=int,
-                       help="map words appearing less than threshold times to unknown")
+                       help="将出现少于阈值次数的单词映射为unknow")
     group.add_argument("--tgtdict", metavar="FP",
-                       help="reuse given target dictionary")
+                       help="重用给定的目标字典")
     group.add_argument("--srcdict", metavar="FP",
-                       help="reuse given source dictionary")
+                       help="重用给定的源字典")
     group.add_argument("--nwordstgt", metavar="N", default=-1, type=int,
-                       help="number of target words to retain")
+                       help="保留的目标词数, 目标字典的单词总数")
     group.add_argument("--nwordssrc", metavar="N", default=-1, type=int,
-                       help="number of source words to retain")
+                       help="保留的源单词数")
     group.add_argument("--alignfile", metavar="ALIGN", default=None,
-                       help="an alignment file (optional)")
+                       help="对齐文件(可选)")
     group.add_argument("--output-format", metavar="FORMAT", default="binary",
                        choices=["binary", "raw"],
-                       help="output format (optional)")
+                       help="输出格式(可选)")
     group.add_argument("--joined-dictionary", action="store_true",
                        help="Generate joined dictionary")
     group.add_argument("--only-source", action="store_true",
-                       help="Only process the source language")
+                       help="仅处理源语言")
     group.add_argument("--padding-factor", metavar="N", default=8, type=int,
-                       help="Pad dictionary size to be multiple of N")
+                       help="填充字典大小为N的倍数,默认为8的倍数大小，为了GPU计算")
     group.add_argument("--workers", metavar="N", default=1, type=int,
                        help="number of parallel workers")
     group.add_argument("--copy-ext-dict", action="store_true",
-                       help="Enable copy extended dictionary")
+                       help="启用复制扩展词典")
     # fmt: on
     return parser
 

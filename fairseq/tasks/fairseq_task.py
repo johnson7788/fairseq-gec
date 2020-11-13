@@ -40,14 +40,11 @@ class FairseqTask(object):
         """Build the dictionary
 
         Args:
-            filenames (list): list of filenames
-            workers (int): number of concurrent workers
-            threshold (int): defines the minimum word count
-            nwords (int): defines the total number of words in the final dictionary,
-                including special symbols
-            padding_factor (int): can be used to pad the dictionary size to be a
-                multiple of 8, which is important on some hardware (e.g., Nvidia
-                Tensor Cores).
+            filenames (list): 文件名列表
+            workers (int):  并发的线程数
+            threshold (int): 定义最小出现的次数
+            nwords (int): 定义最终词典中的单词总数，包括特殊符号
+            padding_factor (int): 可用于将字典大小填充为8的倍数，这在某些硬件上很重要 (e.g., Nvidia Tensor Cores).
         """
         d = Dictionary()
         for filename in filenames:

@@ -41,18 +41,20 @@ def main(args, init_distributed=False):
     # Setup task, e.g., translation, language modeling, etc.
     task = tasks.setup_task(args)
 
-    # Load dataset splits
+    # 加载数据集
     load_dataset_splits(task, ['train', 'valid'])
 
-    # Initialize distributed training (after data loading)
+    # 初始化分布式训练
     if init_distributed:
         import socket
         args.distributed_rank = distributed_utils.distributed_init(args)
         print('| initialized host {} as rank {}'.format(socket.gethostname(), args.distributed_rank))
 
-    # Build model and criterion
+    # build模型和损失
     model = task.build_model(args)
+    #损失函数, eg: CrossEntropyCriterion()
     criterion = task.build_criterion(args)
+    # 打印模型架构
     print(model)
     print('| model {}, criterion {}'.format(args.arch, criterion.__class__.__name__))
     print('| num. model params: {} (num. trained: {})'.format(
@@ -69,10 +71,10 @@ def main(args, init_distributed=False):
     )
     dummy_batch = task.dataset('train').get_dummy_batch(args.max_tokens, max_positions)
     oom_batch = task.dataset('train').get_dummy_batch(1, max_positions)
-
+    #是否从预训练模型加载参数
     model.copy_pretrained_params(args)
 
-    # Build trainer
+    # 构建一个builder
     trainer = Trainer(args, task, model, criterion, dummy_batch, oom_batch)
     print('| training on {} GPUs'.format(args.distributed_world_size))
     print('| max tokens per GPU = {} and max sentences per GPU = {}'.format(
@@ -80,7 +82,7 @@ def main(args, init_distributed=False):
         args.max_sentences,
     ))
 
-    # Initialize dataloader
+    # 初始化 dataloader
     epoch_itr = task.get_batch_iterator(
         dataset=task.dataset(args.train_subset),
         max_tokens=args.max_tokens,
@@ -94,11 +96,11 @@ def main(args, init_distributed=False):
         num_workers=args.num_workers,
     )
 
-    # Load the latest checkpoint if one is available
+    # 加载最新的checkpoint(如果有), 继续训练模型
     if not load_checkpoint(args, trainer, epoch_itr):
         trainer.dummy_train_step([dummy_batch])
 
-    # Train until the learning rate gets too small
+    # 训练直到学习率变得太小
     max_epoch = args.max_epoch or math.inf
     max_update = args.max_update or math.inf
     lr = trainer.get_lr()
@@ -107,7 +109,7 @@ def main(args, init_distributed=False):
     valid_losses = [None]
     valid_subsets = args.valid_subset.split(',')
     while lr > args.min_lr and epoch_itr.epoch < max_epoch and trainer.get_num_updates() < max_update:
-        # train for one epoch
+        # 训练一个epoch
         train(args, trainer, task, epoch_itr)
 
         if epoch_itr.epoch % args.validate_interval == 0:
@@ -373,6 +375,7 @@ def load_checkpoint(args, trainer, epoch_itr):
 
 
 def load_dataset_splits(task, splits):
+    #对train，valid，test等数据进行加载，然后放到tasks.datasets字典中
     for split in splits:
         if split == 'train':
             task.load_dataset(split, combine=True)
@@ -398,6 +401,7 @@ def cli_main():
     parser = options.get_training_parser()
     args = options.parse_args_and_arch(parser)
 
+    # 检查当前的git 的版本
     try:
         git_branch = subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD'])
         git_revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
@@ -407,12 +411,12 @@ def cli_main():
     print('GIT: {} {}'.format(git_branch, git_revision))
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     print('-' * 80)
-
+    #分布式设置
     if args.distributed_init_method is None:
         distributed_utils.infer_init_method(args)
 
     if args.distributed_init_method is not None:
-        # distributed training
+        # 分布式训练
         distributed_main(args.device_id, args)
     elif args.distributed_world_size > 1:
         # fallback for single node with multiple GPUs
@@ -427,7 +431,7 @@ def cli_main():
             nprocs=args.distributed_world_size,
         )
     else:
-        # single GPU training
+        #单GPU训练
         main(args)
 
 

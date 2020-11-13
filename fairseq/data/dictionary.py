@@ -17,13 +17,13 @@ from fairseq.data import data_utils
 
 
 class Dictionary(object):
-    """A mapping from symbols to consecutive integers"""
+    """从符号到连续整数的映射"""
     def __init__(self, pad='<pad>', eos='</s>', unk='<unk>'):
         self.unk_word, self.pad_word, self.eos_word = unk, pad, eos
         self.symbols = []
         self.count = []
         self.indices = {}
-        # dictionary indexing starts at 1 for consistency with Lua
+        # 为了与Lua保持一致，字典索引从1开始
         self.add_symbol('<Lua heritage>')
         self.pad_index = self.add_symbol(pad)
         self.eos_index = self.add_symbol(eos)
@@ -73,7 +73,7 @@ class Dictionary(object):
             return self.unk_word
 
     def add_symbol(self, word, n=1):
-        """Adds a word to the dictionary"""
+        """在字典中添加一个单词"""
         if word in self.indices:
             idx = self.indices[word]
             self.count[idx] = self.count[idx] + n
@@ -99,10 +99,10 @@ class Dictionary(object):
                 self.count.append(new_dict.count[idx2])
 
     def finalize(self, threshold=-1, nwords=-1, padding_factor=8):
-        """Sort symbols by frequency in descending order, ignoring special ones.
+        """按频率降序对单个字排序，忽略特殊符号.
 
         Args:
-            - threshold defines the minimum word count
+            - threshold 定字义最少的出现次数
             - nwords defines the total number of words in the final dictionary,
                 including special symbols
             - padding_factor can be used to pad the dictionary size to be a
@@ -111,12 +111,15 @@ class Dictionary(object):
         """
         if nwords <= 0:
             nwords = len(self)
-
+        # 把自定义的特殊字符先排除出去{'<Lua heritage>': 0, '<pad>': 1, '</s>': 2, '<unk>': 3}
         new_indices = dict(zip(self.symbols[:self.nspecial], range(self.nspecial)))
+        # eg: ['<Lua heritage>', '<pad>', '</s>', '<unk>']
         new_symbols = self.symbols[:self.nspecial]
+        # eg: [1, 1, 1796, 1]
         new_count = self.count[:self.nspecial]
-
+        # c 是剩余的其他字符
         c = Counter(dict(zip(self.symbols[self.nspecial:], self.count[self.nspecial:])))
+        #过滤出现的次数小于阈值的
         for symbol, count in c.most_common(nwords - self.nspecial):
             if count >= threshold:
                 new_indices[symbol] = len(new_symbols)
@@ -124,7 +127,7 @@ class Dictionary(object):
                 new_count.append(count)
             else:
                 break
-
+        # 目前的总的单词数, 如果除以8不等于0，那么补 'madeupword0000'这个填充单词
         threshold_nwords = len(new_symbols)
         if padding_factor > 1:
             i = 0
@@ -138,7 +141,7 @@ class Dictionary(object):
 
         assert len(new_symbols) % padding_factor == 0
         assert len(new_symbols) == len(new_indices)
-
+        # count是所有id， symbols是所有的字的列表， indices是组成的字典
         self.count = list(new_count)
         self.symbols = list(new_symbols)
         self.indices = new_indices
@@ -224,8 +227,9 @@ class Dictionary(object):
         if reverse_order:
             words = list(reversed(words))
         nwords = len(words)
+        #初始化整个句子的id
         ids = torch.IntTensor(nwords + 1 if append_eos else nwords)
-
+        #为ids中的每个id根据对应的单词填充id
         for i, word in enumerate(words):
             if add_if_not_exist:
                 idx = self.add_symbol(word)

@@ -23,9 +23,7 @@ from fairseq.models import EMA, ema_init, ema_step
 class Trainer(object):
     """Main class for data parallel training.
 
-    This class supports synchronous distributed data parallel training,
-    where multiple workers each have a full model replica and gradients
-    are accumulated across workers before each update. We use
+    此类支持同步分布式数据并行训练，其中多个workers每个都有完整的模型副本，并且在每次更新之前在每个workers之间累积梯度。我们用
     :class:`~torch.nn.parallel.DistributedDataParallel` to handle
     communication of the gradients across workers.
     """
@@ -34,7 +32,7 @@ class Trainer(object):
         self.args = args
         self.task = task
 
-        # copy model and criterion to current device
+        #复制模型和损失函数到当前device
         self.criterion = criterion
         self._model = model
         self.cuda = torch.cuda.is_available() and not args.cpu
@@ -54,7 +52,7 @@ class Trainer(object):
         self._prev_grad_norm = None
         self._wrapped_model = None
         self._ema = None 
-
+        #初始化度量指标
         self.init_meters(args)
 
     def init_meters(self, args):

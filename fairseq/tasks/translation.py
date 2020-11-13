@@ -102,23 +102,24 @@ class TranslationTask(FairseqTask):
         Args:
             args (argparse.Namespace): parsed command-line arguments
         """
+        # left_pad_source=True， left_pad_target=False
         args.left_pad_source = options.eval_bool(args.left_pad_source)
         args.left_pad_target = options.eval_bool(args.left_pad_target)
 
-        # find language pair automatically
+        # 例如source_lang=cn  target_lang=en
         if args.source_lang is None or args.target_lang is None:
             args.source_lang, args.target_lang = data_utils.infer_language_pair(args.data[0])
         if args.source_lang is None or args.target_lang is None:
             raise Exception('Could not infer language pair, please provide it explicitly')
 
-        # load dictionaries
+        #加载字典文件
         src_dict = cls.load_dictionary(os.path.join(args.data[0], 'dict.{}.txt'.format(args.source_lang)))
         tgt_dict = cls.load_dictionary(os.path.join(args.data[0], 'dict.{}.txt'.format(args.target_lang)))
         assert src_dict.pad() == tgt_dict.pad()
         assert src_dict.eos() == tgt_dict.eos()
         assert src_dict.unk() == tgt_dict.unk()
-        print('| [{}] dictionary: {} types'.format(args.source_lang, len(src_dict)))
-        print('| [{}] dictionary: {} types'.format(args.target_lang, len(tgt_dict)))
+        print('| [{}] dictionary: {} 个字符'.format(args.source_lang, len(src_dict)))
+        print('| [{}] dictionary: {} 个字符'.format(args.target_lang, len(tgt_dict)))
 
         return cls(args, src_dict, tgt_dict)
 
@@ -160,7 +161,7 @@ class TranslationTask(FairseqTask):
         tgt_labels = []
 
         data_paths = self.args.data
-
+        # 如果有其它文件，请按照train1, train2等命名
         for dk, data_path in enumerate(data_paths):
             for k in itertools.count():
                 split_k = split + (str(k) if k > 0 else '')
@@ -178,9 +179,10 @@ class TranslationTask(FairseqTask):
                         raise FileNotFoundError('Dataset not found: {} ({})'.format(split, data_path))
                 src_dataset = indexed_dataset(prefix + src, self.src_dict, self.args.copy_ext_dict)
                 tgt_dataset = indexed_dataset(prefix + tgt, self.tgt_dict, self.args.copy_ext_dict, src_dataset)
+                # src_dataset 包括 lines, sizes, tokens_list, words_list
                 src_datasets.append(src_dataset)
                 tgt_datasets.append(tgt_dataset)
-
+                #label的索引
                 label_prefix = os.path.join(data_path, '{}.label.'.format(split_k))
                 src_label = indexed_label(label_prefix + src + '.txt')
                 tgt_label = indexed_label(label_prefix + tgt + '.txt')
@@ -203,7 +205,7 @@ class TranslationTask(FairseqTask):
             sample_ratios[0] = self.args.upsample_primary
             src_dataset = ConcatDataset(src_datasets, sample_ratios)
             tgt_dataset = ConcatDataset(tgt_datasets, sample_ratios)
-
+        #源数据和目标数据组成的数据集
         self.datasets[split] = LanguagePairDataset(
             src_dataset, src_dataset.sizes, self.src_dict, src_label,
             tgt_dataset, tgt_dataset.sizes, self.tgt_dict, tgt_label,

@@ -6,7 +6,7 @@
 # the root directory of this source tree. An additional grant of patent rights
 # can be found in the PATENTS file in the same directory.
 """
-Data pre-processing: build vocabularies and binarize training data.
+Data pre-processing: 建立单词表表并二分类化训练数据。
 """
 
 from collections import Counter, defaultdict
@@ -28,8 +28,9 @@ def main(args):
     print(args)
 
     os.makedirs(args.destdir, exist_ok=True)
+    # 是否仅处理源语言, target为True表示不是
     target = not args.only_source
-
+    # task表示要进行的任务类型，这里是根据给定的参数进行初始化后的 <class 'fairseq.tasks.translation.TranslationTask'>
     task = tasks.get_task(args.task)
 
     def train_path(lang):
@@ -48,20 +49,21 @@ def main(args):
         return dest_path("dict", lang) + ".txt"
 
     def build_dictionary(filenames, src=False, tgt=False):
+        # src和tgt只能由一个为True
         assert src ^ tgt
         return task.build_dictionary(
             filenames,
-            workers=args.workers,
-            threshold=args.thresholdsrc if src else args.thresholdtgt,
-            nwords=args.nwordssrc if src else args.nwordstgt,
+            workers=args.workers,     # workers线程数
+            threshold=args.thresholdsrc if src else args.thresholdtgt,    #将出现少于阈值次数的单词映射为unknow
+            nwords=args.nwordssrc if src else args.nwordstgt,   #保留的目标或源词数
             padding_factor=args.padding_factor,
         )
-
+    #检查字典文件是否存在，字典文件不应该存在，src字典和tgt字典
     if not args.srcdict and os.path.exists(dict_path(args.source_lang)):
         raise FileExistsError(dict_path(args.source_lang))
     if target and not args.tgtdict and os.path.exists(dict_path(args.target_lang)):
         raise FileExistsError(dict_path(args.target_lang))
-
+    # 默认是False，
     if args.copy_ext_dict:
         assert args.joined_dictionary, \
             "--joined-dictionary must be set if --copy-extended-dictionary is specified"
@@ -83,10 +85,12 @@ def main(args):
             )
         tgt_dict = src_dict
     else:
+        #如果srcdict不指定，那么trainpref必须制定, 训练数据用来生成字典
         if args.srcdict:
             src_dict = task.load_dictionary(args.srcdict)
         else:
             assert args.trainpref, "--trainpref must be set if --srcdict is not specified"
+            # 构建源序列的字典
             src_dict = build_dictionary([train_path(args.source_lang)], src=True)
 
         if target:
@@ -94,10 +98,11 @@ def main(args):
                 tgt_dict = task.load_dictionary(args.tgtdict)
             else:
                 assert args.trainpref, "--trainpref must be set if --tgtdict is not specified"
+                #构建目标序列的字典
                 tgt_dict = build_dictionary([train_path(args.target_lang)], tgt=True)
         else:
             tgt_dict = None
-
+    # eg: source_lang:  保存源和目标的字典
     src_dict.save(dict_path(args.source_lang))
     if target and tgt_dict is not None:
         tgt_dict.save(dict_path(args.target_lang))
@@ -208,14 +213,14 @@ def main(args):
                 outprefix = "test{}".format(k) if k > 0 else "test"
                 words_list_dict["test"] = \
                     make_dataset(vocab, testpref, outprefix, lang, copy_src_words=source_words_list_dict['test'])
-
+        # 返回一个默认的dict, eg 'train' = {NoneType} None   'valid' = {NoneType} None  或者 test
         return words_list_dict
-
+    # source_words_list_dict
     source_words_list_dict = make_all(args.source_lang, src_dict)
     if target:
         target_words_list_dict = make_all(args.target_lang, tgt_dict, source_words_list_dict)
 
-    print("| Wrote preprocessed data to {}".format(args.destdir))
+    print("把预处理数据写入到 {}".format(args.destdir))
 
     if False: #args.alignfile:
         assert args.trainpref, "--trainpref must be set if --alignfile is specified"
@@ -260,39 +265,40 @@ def main(args):
                 print("{} {}".format(src_dict[k], tgt_dict[v]), file=f)
 
 
-    if args.alignfile:
-        from fairseq.tokenizer import tokenize_line
-        import numpy as np
-        assert args.trainpref, "--trainpref must be set if --alignfile is specified"
-        src_file_name = train_path(args.source_lang)
-        tgt_file_name = train_path(args.target_lang)
-        src_labels_list = []
-        tgt_labels_list = []
-        with open(args.alignfile, "r", encoding='utf-8') as align_file:
-            with open(src_file_name, "r", encoding='utf-8') as src_file:
-                with open(tgt_file_name, "r", encoding='utf-8') as tgt_file:
-                    for a, s, t in zip_longest(align_file, src_file, tgt_file):
-                        src_words = tokenize_line(s)
-                        tgt_words = tokenize_line(t)
-                        ai = list(map(lambda x: tuple(x.split("-")), a.split()))
-                        src_labels = np.ones(len(src_words), int)
-                        tgt_labels = np.ones(len(tgt_words), int)
-                        for sai, tai in ai:
-                            if int(tai) >= len(tgt_words):
-                                print('Bad case:')
-                                print(tgt_words)
-                                print(ai)
-                                continue
-                            src_word = src_words[int(sai)]
-                            tgt_word = tgt_words[int(tai)]
-                            if src_word == tgt_word:
-                                src_labels[int(sai)] = 0
-                                tgt_labels[int(tai)] = 0
-                        src_labels_list.append(src_labels)
-                        tgt_labels_list.append(tgt_labels)
-
-        save_label_file(os.path.join(args.destdir, "train.label.{}.txt".format(args.source_lang)), src_labels_list)
-        save_label_file(os.path.join(args.destdir, "train.label.{}.txt".format(args.target_lang)), tgt_labels_list)
+    # if args.alignfile:
+    #     from fairseq.tokenizer import tokenize_line
+    #     import numpy as np
+    #     assert args.trainpref, "--trainpref must be set if --alignfile is specified"
+    #     src_file_name = train_path(args.source_lang)
+    #     tgt_file_name = train_path(args.target_lang)
+    #     src_labels_list = []
+    #     tgt_labels_list = []
+    #     with open(args.alignfile, "r", encoding='utf-8') as align_file:
+    #         with open(src_file_name, "r", encoding='utf-8') as src_file:
+    #             with open(tgt_file_name, "r", encoding='utf-8') as tgt_file:
+    #                 for a, s, t in zip_longest(align_file, src_file, tgt_file):
+    #                     src_words = tokenize_line(s)
+    #                     tgt_words = tokenize_line(t)
+    #                     ai = list(map(lambda x: tuple(x.split("-")), a.split()))
+    #                     src_labels = np.ones(len(src_words), int)
+    #                     tgt_labels = np.ones(len(tgt_words), int)
+    #                     for sai, tai in ai:
+    #                         if int(tai) >= len(tgt_words):
+    #                             print('Bad case:')
+    #                             print(tgt_words)
+    #                             print(ai)
+    #                             continue
+    #                         src_word = src_words[int(sai)]
+    #                         tgt_word = tgt_words[int(tai)]
+    #                         if src_word == tgt_word:
+    #                             src_labels[int(sai)] = 0
+    #                             tgt_labels[int(tai)] = 0
+    #                     src_labels_list.append(src_labels)
+    #                     tgt_labels_list.append(tgt_labels)
+    #
+    #     save_label_file(os.path.join(args.destdir, "train.label.{}.txt".format(args.source_lang)), src_labels_list)
+    #     save_label_file(os.path.join(args.destdir, "train.label.{}.txt".format(args.target_lang)), tgt_labels_list)
+    print("预处理完成")
 
 def save_label_file(path, label_list):
     with open(path, 'w', encoding='utf-8') as ofile:

@@ -153,9 +153,9 @@ class IndexedCachedDataset(IndexedDataset):
 
 
 class IndexedRawTextDataset(torch.utils.data.Dataset):
-    """Takes a text file as input and binarizes it in memory at instantiation.
-    Original lines are also kept in memory"""
-
+    """
+    将文本文件作为输入，并在实例化时将其二分类化在内存中。原始行也保存在内存中
+    """
     def __init__(self, path, dictionary, append_eos=True, reverse_order=False, copy_ext_dict=False, src_dataset=None):
         self.tokens_list = []
         self.words_list = []
@@ -175,12 +175,14 @@ class IndexedRawTextDataset(torch.utils.data.Dataset):
                 self.lines.append(line.strip('\n'))
                 out_words = []
                 copy_src_words = None if self.src_dataset is None else self.src_dataset.words_list[len(self.lines)-1]
+                # 整句话的tokens，即所有字的id做成tensor
                 tokens = dictionary.encode_line(
                     line, add_if_not_exist=False,
                     append_eos=self.append_eos, reverse_order=self.reverse_order,
                     copy_ext_dict=self.copy_ext_dict, copy_src_words=copy_src_words,
                     out_words=out_words
                 ).long()
+                # 把tokens加入列表，所有的单词组成的列表out_words加入words_list,
                 self.tokens_list.append(tokens)
                 self.words_list.append(out_words)
                 self.sizes.append(len(tokens))

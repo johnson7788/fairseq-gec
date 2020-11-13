@@ -1,6 +1,6 @@
 # Introduction
 
-Source code for the paper: 
+论文源码: 
 **Improving Grammatical Error Correction via Pre-Training a Copy-Augmented Architecture with Unlabeled Data**
 Authors: Wei Zhao, Liang Wang, Kewei Shen, Ruoyu Jia, Jingming Liu
 Arxiv url: https://arxiv.org/abs/1903.00138
@@ -11,9 +11,8 @@ Comments: Accepted by NAACL 2019 (oral)
 - PyTorch version >= 1.0.0
 - Python version >= 3.6
 
-## 下载数据
-- Download CoNLL-2014 evaluation scripts
-
+## 下载文件
+- 下载 CoNLL-2014 评估脚本
 ```
 cd gec_scripts/
 sh download.sh
