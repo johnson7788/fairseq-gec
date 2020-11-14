@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
+# 使用的GPU设备
 device=0
 if [ $# -ge 1 ]; then
     device=$1
 fi
 
+#模型名称
 exp=''
 if [ $# -ge 2 ]; then
     exp=$2

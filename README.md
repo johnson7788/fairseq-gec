@@ -12,7 +12,7 @@ Comments: Accepted by NAACL 2019 (oral)
 - Python version >= 3.6
 
 ## 下载文件
-- 下载 CoNLL-2014 评估脚本
+- 下载 CoNLL-2014 评估脚本m2score
 ```
 cd gec_scripts/
 sh download.sh
@@ -24,10 +24,10 @@ sh download.sh
     - url1: https://drive.google.com/file/d/1zewifHUUwvqc2F-MfDRsZFio6PlSzx2c/view?usp=sharing
     - url2: https://pan.baidu.com/s/1hCwQeNFjng_0_NiViJq6fg (code: mxrf)
     
-  pre-processed data: (Google Drive)(train/valid/test)
+  pre-processed data: (Google Drive)(train/valid/test)， 文件 out.zip
     - url: https://drive.google.com/open?id=17s-TZiM6ilQ-SHklxTUun2Jdgg8B9zS3  
 
-## 用pre-trained model训练
+## 用pre-trained model训练, 首先需要下载pre-trained model: (Google Drive/Baidu Pan) 
 ```
 cd fairseq-gec
 pip install --editable
@@ -35,8 +35,8 @@ sh train.sh \${device_id} \${experiment_name}
 ```
 
 ## 不使用pre-trained model训练, 修改train.sh
-- delete parameter "--pretrained-model" 
-- change the value of "--max-epoch" to 15 (more epochs are needed without pre-trained parameters) 
+- 删除参数  "--pretrained-model" 
+- 把epoch改大 "--max-epoch" to 15 (不使用预训练模型需要更多的epoch) 
 
 ## Evaluate on the CoNLL-2014 test dataset
 ```
@@ -48,10 +48,10 @@ sh g.sh \${device_id} \${experiment_name}
 如果有人想从头开始获得预训练的模型，我们在这里列出了步骤。
 
 ```
-1. # prepare target sentences using one billion benchmark dataset
-2. sh noise.sh # generate the noised source sentences 
-3. sh preprocess_noise_data.sh # preprocess data
-4. sh pretrain.sh 0,1 _pretrain # pretrain 
+1. # 使用十亿个基准数据集准备目标句子
+2. sh noise.sh # 生成还有噪声的原始句子
+3. sh preprocess_noise_data.sh # 预处理数据
+4. sh pretrain.sh 0,1 _pretrain # 预训练， 0,1参数代表GPU设备，_pretrain表示模型名称
 ```
 
 ## Acknowledgments
