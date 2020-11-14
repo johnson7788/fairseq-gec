@@ -1,9 +1,7 @@
-# Copyright (c) 2017-present, Facebook, Inc.
-# All rights reserved.
+# Copyright (c) Facebook, Inc. and its affiliates.
 #
-# This source code is licensed under the license found in the LICENSE file in
-# the root directory of this source tree. An additional grant of patent rights
-# can be found in the PATENTS file in the same directory.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 
 import torch
 from torch.nn.modules.utils import _single
@@ -15,6 +13,7 @@ class ConvTBC(torch.nn.Module):
     The implementation uses gemm to perform the convolution. This implementation
     is faster than cuDNN for small kernel sizes.
     """
+
     def __init__(self, in_channels, out_channels, kernel_size, padding=0):
         super(ConvTBC, self).__init__()
         self.in_channels = in_channels
@@ -22,17 +21,22 @@ class ConvTBC(torch.nn.Module):
         self.kernel_size = _single(kernel_size)
         self.padding = _single(padding)
 
-        self.weight = torch.nn.Parameter(torch.Tensor(
-            self.kernel_size[0], in_channels, out_channels))
+        self.weight = torch.nn.Parameter(
+            torch.Tensor(self.kernel_size[0], in_channels, out_channels)
+        )
         self.bias = torch.nn.Parameter(torch.Tensor(out_channels))
 
     def forward(self, input):
-        return torch.conv_tbc(input.contiguous(), self.weight, self.bias, self.padding[0])
+        return torch.conv_tbc(
+            input.contiguous(), self.weight, self.bias, self.padding[0]
+        )
 
     def __repr__(self):
-        s = ('{name}({in_channels}, {out_channels}, kernel_size={kernel_size}'
-             ', padding={padding}')
+        s = (
+            "{name}({in_channels}, {out_channels}, kernel_size={kernel_size}"
+            ", padding={padding}"
+        )
         if self.bias is None:
-            s += ', bias=False'
-        s += ')'
+            s += ", bias=False"
+        s += ")"
         return s.format(name=self.__class__.__name__, **self.__dict__)

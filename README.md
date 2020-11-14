@@ -14,7 +14,7 @@ Comments: Accepted by NAACL 2019 (oral)
 
 # 中文纠错
 
-## 准备中文数据
+## 准备中文数据, 名字要注意如下格式
 data
 ├── test.src
 ├── test.trg
@@ -27,7 +27,7 @@ data
 python preprocess.py --source-lang src --target-lang trg --trainpref data/train --validpref data/valid --destdir out/data --output-format raw
 
 ## 开始训练
-python train.py out/data --save-dir out/models --seed 4321 --max-epoch 15 --batch-size 64 --max-tokens 3000 --train-subset train --valid-subset valid --arch transformer --lr-scheduler triangular --max-lr 0.004 --lr-period-updates 73328 --clip-norm 2 --lr 0.001 --lr-shrink 0.95 --shrink-min --dropout 0.2 --relu-dropout 0.2 --attention-dropout 0.2 --copy-attention-dropout 0.2 --encoder-embed-dim 512 --decoder-embed-dim 512 --max-target-positions 1024 --max-source-positions 1024 --encoder-ffn-embed-dim 4096 --decoder-ffn-embed-dim 4096 --encoder-attention-heads 8 --decoder-attention-heads 8 --copy-attention-heads 1 --no-progress-bar --log-interval 1000 --positive-label-weight 1.2 --copy-attention --copy-attention-heads 1 --raw-text
+python train.py out/data --save-dir out/models --seed 4321 --max-epoch 15 --batch-size 32 --max-tokens 3000 --train-subset train --valid-subset valid --arch transformer --lr-scheduler triangular --max-lr 0.004 --lr-period-updates 73328 --clip-norm 2 --lr 0.001 --lr-shrink 0.95 --shrink-min --dropout 0.2 --relu-dropout 0.2 --attention-dropout 0.2 --copy-attention-dropout 0.2 --encoder-embed-dim 512 --decoder-embed-dim 512 --max-target-positions 1024 --max-source-positions 1024 --encoder-ffn-embed-dim 4096 --decoder-ffn-embed-dim 4096 --encoder-attention-heads 8 --decoder-attention-heads 8 --copy-attention-heads 1 --no-progress-bar --log-interval 1000 --positive-label-weight 1.2 --copy-attention --copy-attention-heads 1 --raw-text
 
 # 英文纠错
 ## 下载文件

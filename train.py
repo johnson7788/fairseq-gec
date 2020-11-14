@@ -24,7 +24,6 @@ from fairseq.data import iterators
 from fairseq.trainer import Trainer
 from fairseq.meters import AverageMeter, StopwatchMeter
 from fairseq.utils import import_user_module
-from fairseq.models import ema_reverse, ema_restore
 
 
 def main(args, init_distributed=False):
@@ -115,12 +114,6 @@ def main(args, init_distributed=False):
         if epoch_itr.epoch % args.validate_interval == 0:
             valid_losses = validate(args, trainer, task, epoch_itr, valid_subsets)
             # ema process
-            if not args.no_ema:
-                old_data = ema_restore(trainer.ema, trainer.model)
-                valid_losses_ema = validate(args, trainer, task, epoch_itr, valid_subsets)
-                if epoch_itr.epoch % args.save_interval == 0:
-                    save_checkpoint(args, trainer, epoch_itr, valid_losses_ema[0], suffix='ema')
-                ema_reverse(trainer.ema, trainer.model, old_data)
 
         # only use first validation loss to update the learning rate
         lr = trainer.lr_step(epoch_itr.epoch, valid_losses[0])
@@ -412,27 +405,8 @@ def cli_main():
     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     print('-' * 80)
     #分布式设置
-    if args.distributed_init_method is None:
-        distributed_utils.infer_init_method(args)
 
-    if args.distributed_init_method is not None:
-        # 分布式训练
-        distributed_main(args.device_id, args)
-    elif args.distributed_world_size > 1:
-        # fallback for single node with multiple GPUs
-        port = random.randint(10000, 20000)
-        args.distributed_init_method = 'tcp://localhost:{port}'.format(port=port)
-        args.distributed_rank = None  # set based on device id
-        if max(args.update_freq) > 1 and args.ddp_backend != 'no_c10d':
-            print('| NOTE: you may get better performance with: --ddp-backend=no_c10d')
-        torch.multiprocessing.spawn(
-            fn=distributed_main,
-            args=(args, ),
-            nprocs=args.distributed_world_size,
-        )
-    else:
-        #单GPU训练
-        main(args)
+    main(args)
 
 
 if __name__ == '__main__':
