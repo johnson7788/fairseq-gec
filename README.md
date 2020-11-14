@@ -27,6 +27,30 @@ sh download.sh
   pre-processed data: (Google Drive)(train/valid/test)， 文件 out.zip
     - url: https://drive.google.com/open?id=17s-TZiM6ilQ-SHklxTUun2Jdgg8B9zS3  
 
+## 英文数据目录格式 out目录下
+├── data_bin
+│   ├── dict.src.txt
+│   ├── dict.tgt.txt
+│   ├── train.label.src.txt
+│   ├── train.label.tgt.txt
+│   ├── train.src-tgt.src.bin
+│   ├── train.src-tgt.src.idx
+│   ├── train.src-tgt.tgt.bin
+│   ├── train.src-tgt.tgt.idx
+│   ├── valid.label.src.txt
+│   ├── valid.label.tgt.txt
+│   ├── valid.src-tgt.src.bin
+│   ├── valid.src-tgt.src.idx
+│   ├── valid.src-tgt.tgt.bin
+│   └── valid.src-tgt.tgt.idx
+└── data_raw
+    ├── dict.src.txt
+    ├── dict.tgt.txt
+    ├── test.idx
+    ├── test.src-tgt.src
+    ├── test.src-tgt.src.old
+    └── test.src-tgt.tgt
+
 ## 用pre-trained model训练, 首先需要下载pre-trained model: (Google Drive/Baidu Pan) 
 ```
 cd fairseq-gec
